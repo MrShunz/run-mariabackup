@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Create a backup user
 # CREATE USER 'backup'@'localhost' IDENTIFIED BY 'YourPassword';
@@ -11,14 +11,15 @@
 # Usage:
 # MYSQL_PASSWORD=YourPassword bash run-mariabackup.sh
 
-MYSQL_USER=backup
-#MYSQL_PASSWORD=YourPassword
+DIR=$(dirname $(realpath "$0") )
+set -o allexport ; source "$DIR/.env" ; set +o allexport
+
 MYSQL_HOST=localhost
 MYSQL_PORT=3306
 BACKCMD=mariabackup # Galera Cluster uses mariabackup instead of xtrabackup.
 GZIPCMD=gzip  # pigz (a parallel implementation of gzip) could be used if available.
 STREAMCMD=xbstream # sometimes named mbstream to avoid clash with Percona command
-BACKDIR=/data/mysql_backup
+BACKDIR=/var/mariadb/backup
 FULLBACKUPCYCLE=604800 # Create a new full backup every X seconds
 KEEP=3  # Number of additional backups cycles a backup should be kept for.
 LOCKDIR=/tmp/mariabackup.lock
@@ -51,7 +52,7 @@ USEROPTIONS="--user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --host=${MYSQL_HO
 # at the time of the backup. Option should be used when performing the backup of MariaDB Galera Cluster.
 ARGS=""
 BASEBACKDIR=$BACKDIR/base
-INCRBACKDIR=$BACKDIR/incr
+INCRBACKDIR=$BACKDIR/incremental
 START=`date +%s`
 
 echo "----------------------------"
@@ -167,3 +168,4 @@ echo
 echo "took $SPENT seconds"
 echo "completed: `date`"
 ReleaseLockAndExitWithCode 0
+
