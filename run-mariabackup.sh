@@ -70,7 +70,6 @@ fi
 # Check base dir exists and is writable
 if test ! -d $BASEBACKDIR -o ! -w $BASEBACKDIR
 then
-  error
   echo $BASEBACKDIR 'does not exist or is not writable'; echo
   exit 1
 fi
@@ -83,7 +82,6 @@ fi
 # check incr dir exists and is writable
 if test ! -d $INCRBACKDIR -o ! -w $INCRBACKDIR
 then
-  error
   echo $INCRBACKDIR 'does not exist or is not writable'; echo
   exit 1
 fi
