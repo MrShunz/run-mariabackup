@@ -60,7 +60,6 @@ echo "run-mariabackup.sh: MySQL backup script"
 echo "Started: `date`"
 echo "---------------------------------------"
 echo
-echo
 
 if test ! -d $BASEBACKDIR
 then
@@ -110,6 +109,7 @@ AGE=`stat -c %Y $BASEBACKDIR/$LATEST/backup.stream.gz`
 if [ "$LATEST" -a `expr $AGE + $FULLBACKUPCYCLE + 5` -ge $START ]
 then
   echo 'New incremental backup'
+  echo
   # Create an incremental backup
 
   # Check incr sub dir exists
