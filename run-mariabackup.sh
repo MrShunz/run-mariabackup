@@ -14,17 +14,17 @@
 DIR=$(dirname $(realpath "$0") )
 set -o allexport ; source "$DIR/.env" ; set +o allexport
 
-MYSQL_HOST=localhost
+MYSQL_HOST=127.0.0.1
 MYSQL_PORT=3306
-BACKCMD=mariabackup # Galera Cluster uses mariabackup instead of xtrabackup.
-GZIPCMD=gzip  # pigz (a parallel implementation of gzip) could be used if available.
-STREAMCMD=xbstream # sometimes named mbstream to avoid clash with Percona command
-BACKDIR=/var/mariadb/backup
-FULLBACKUPCYCLE=604800 # Create a new full backup every X seconds
-KEEP=3  # Number of additional backups cycles a backup should be kept for.
+BACKCMD=mariabackup     # Galera Cluster uses mariabackup instead of xtrabackup.
+GZIPCMD=gzip            # pigz (a parallel implementation of gzip) could be used if available.
+STREAMCMD=xbstream      # sometimes named mbstream to avoid clash with Percona command
+FULLBACKUPCYCLE=604800  # Create a new full backup every X seconds
+KEEP=3                  # Number of additional backups cycles a backup should be kept for.
 LOCKDIR=/tmp/mariabackup.lock
+BACKDIR=/var/mariadb/backup
 
-ReleaseLockAndExitWithCode () {
+ReleaseLockAndExitWithCode() {
   if rmdir $LOCKDIR
   then
     echo "Lock directory removed"
@@ -34,7 +34,7 @@ ReleaseLockAndExitWithCode () {
   exit $1
 }
 
-GetLockOrDie () {
+GetLockOrDie() {
   if mkdir $LOCKDIR
   then
     echo "Lock directory created"
@@ -55,10 +55,11 @@ BASEBACKDIR=$BACKDIR/base
 INCRBACKDIR=$BACKDIR/incremental
 START=`date +%s`
 
-echo "----------------------------"
-echo
+echo "---------------------------------------"
 echo "run-mariabackup.sh: MySQL backup script"
-echo "started: `date`"
+echo "Started: `date`"
+echo "---------------------------------------"
+echo
 echo
 
 if test ! -d $BASEBACKDIR
@@ -153,7 +154,13 @@ else
 fi
 
 MINS=$(($FULLBACKUPCYCLE * ($KEEP + 1 ) / 60))
+
+echo
+echo
+echo "----------------------------------------------------------------------"
 echo "Cleaning up old backups (older than $MINS minutes) and temporary files"
+echo "----------------------------------------------------------------------"
+echo
 
 # Delete old backups
 for DEL in `find $BASEBACKDIR -mindepth 1 -maxdepth 1 -type d -mmin +$MINS -printf "%P\n"`
@@ -165,7 +172,10 @@ done
 
 SPENT=$((`date +%s` - $START))
 echo
-echo "took $SPENT seconds"
-echo "completed: `date`"
-ReleaseLockAndExitWithCode 0
+echo
+echo "----------------------------------------------------------------------"
+echo "Script took $SPENT seconds"
+echo "Script completed: `date`"
+echo "----------------------------------------------------------------------"
 
+ReleaseLockAndExitWithCode 0
